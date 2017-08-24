@@ -60,58 +60,39 @@ public class UserController {
 
 	@GetMapping(value = "/users")
 	public ResponseEntity<List<?>> getUsers() {
-		List<User> users = this.userService.listUsers();
-		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=UTF-8");
-	    headers.add("X-Fsl-Location", "/");
-	    headers.add("Access-Control-Allow-Origin", "*");
-	    headers.add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
-		
+		List<User> users = this.userService.listUsers();		
 		if (users.isEmpty()) {
-			return new ResponseEntity<List<?>>(headers, HttpStatus.NO_CONTENT);
+			return new ResponseEntity<List<?>>(headers(), HttpStatus.NO_CONTENT);
 		}
-		return new ResponseEntity<List<?>>(users, headers, HttpStatus.OK);
+		return new ResponseEntity<List<?>>(users, headers(), HttpStatus.OK);
 	}
 	
 	@GetMapping(value = "/usersnew")
 	public ResponseEntity<Map<String, List>> getUsersNew() {
 		List<User> users = this.userService.listUsers();
 		Map<String, List> map = new HashMap();
-		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=UTF-8");
-	    headers.add("X-Fsl-Location", "/");
-	    headers.add("Access-Control-Allow-Origin", "*");
-	    headers.add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
-		
 		if (users.isEmpty()) {
 			map.put("users", null);
-			return new ResponseEntity<Map<String, List>>(headers, HttpStatus.NO_CONTENT);
+			return new ResponseEntity<Map<String, List>>(headers(), HttpStatus.NO_CONTENT);
 		}
 		else {
 			map.put("users", users);
-			return new ResponseEntity<Map<String, List>>(map, headers, HttpStatus.OK);
+			return new ResponseEntity<Map<String, List>>(map, headers(), HttpStatus.OK);
 		}
 	}
 	
 	@GetMapping(value = "/user/{id}")
 	public ResponseEntity getUser(@PathVariable("id") int id) {
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=UTF-8");
-	    headers.add("X-Fsl-Location", "/");
-	    headers.add("Access-Control-Allow-Origin", "*");
-	    headers.add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
 		User user = null;
 		try {
 			user = this.userService.getUserById(id);
-			return new ResponseEntity(user, headers, HttpStatus.OK);
+			return new ResponseEntity(user, headers(), HttpStatus.OK);
 		} catch (ObjectNotFoundException one) {
 			System.out.println("hasilnya tidak ada");
-			return new ResponseEntity("No Customer found for ID " + id, headers, HttpStatus.NOT_FOUND);
+			return new ResponseEntity("No Customer found for ID " + id, headers(), HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			System.out.println("hasilnya tidak ada");
-			return new ResponseEntity("Error occured while executing your command", headers, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity("Error occured while executing your command", headers(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -120,12 +101,6 @@ public class UserController {
 		System.out.println("#### 1 ####");
 		List<Map<String, String>> successList = new ArrayList<Map<String, String>>();
 		Map<String, String> map = new HashMap<String, String>();
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=UTF-8");
-	    headers.add("X-Fsl-Location", "/");
-	    headers.add("Access-Control-Allow-Origin", "*");
-	    headers.add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
-	    
 		for (User user : users) {
 			map.put("userLogin", user.getUserLogin());
 			try {
@@ -144,17 +119,12 @@ public class UserController {
 			}
 			map = new HashMap<String, String>();
 		}
-		return new ResponseEntity<List<?>>(successList, headers, HttpStatus.OK);
+		return new ResponseEntity<List<?>>(successList, headers(), HttpStatus.OK);
 	}
 	
 	@DeleteMapping
 	public ResponseEntity<List<?>> deleteUser(@Valid @RequestBody List<Map> ids) {
 		List<Map> successList = new ArrayList<Map>();
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=UTF-8");
-	    headers.add("X-Fsl-Location", "/");
-	    headers.add("Access-Control-Allow-Origin", "*");
-	    headers.add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
 		for (Map map : ids) {
 			try {
 				int key = Integer.parseInt(map.get("key").toString());
@@ -164,20 +134,13 @@ public class UserController {
 				e.printStackTrace();
 			}
 		}
-		return new ResponseEntity<List<?>>(successList, headers, HttpStatus.OK);
+		return new ResponseEntity<List<?>>(successList, headers(), HttpStatus.OK);
 	}
 	
 	@PutMapping(value = "/user/roles/{id}")
 	public ResponseEntity<List<?>> addUserRoles(@Valid @RequestBody List<Role> roles, @PathVariable("id") int id) {
 		List<Map<String, String>> successList = new ArrayList<Map<String, String>>();
-		Map<String, String> map = new HashMap<String, String>();
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=UTF-8");
-	    headers.add("X-Fsl-Location", "/");
-	    headers.add("Access-Control-Allow-Origin", "*");
-	    headers.add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
-	    headers.add("Access-Control-Allow-Credentials", "true");
-	    
+		Map<String, String> map = new HashMap<String, String>();	    
 		try {
 			Set<Role> roleSet = new HashSet<Role>();
 			for(Role role : roles) {
@@ -192,6 +155,16 @@ public class UserController {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<List<?>>(successList, headers, HttpStatus.OK);
+		return new ResponseEntity<List<?>>(successList, headers(), HttpStatus.OK);
+	}
+	
+	private HttpHeaders headers() {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-Type", "application/json; charset=UTF-8");
+	    headers.add("X-Fsl-Location", "/");
+	    headers.add("Access-Control-Allow-Origin", "*");
+	    headers.add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
+	    headers.add("Access-Control-Allow-Credentials", "true");
+	    return headers;
 	}
 }
