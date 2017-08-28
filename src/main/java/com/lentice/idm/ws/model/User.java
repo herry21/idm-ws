@@ -89,10 +89,16 @@ public class User {
 	@Column(name="USR_END_DATE")
 	private Date endDate;
 	
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade =
+        {
+                CascadeType.DETACH,
+                CascadeType.MERGE,
+                CascadeType.REFRESH,
+                CascadeType.PERSIST
+        })
 	@JoinTable(name = "UGM", 
-			joinColumns = {@JoinColumn(name = "USR_KEY", referencedColumnName = "USR_KEY")},
-			inverseJoinColumns = { @JoinColumn(name = "GRP_KEY", referencedColumnName = "GRP_KEY") })
+			joinColumns = @JoinColumn(name = "USR_KEY", referencedColumnName = "USR_KEY",nullable = false,updatable = false),
+			inverseJoinColumns = @JoinColumn(name = "GRP_KEY", referencedColumnName = "GRP_KEY",nullable = false,updatable = false))
 	private Set<Role> roles = new HashSet<Role>(0);
 	
 	public int getKey() {
