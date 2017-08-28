@@ -36,6 +36,7 @@ import com.lentice.idm.ws.model.Organization;
 import com.lentice.idm.ws.model.Role;
 import com.lentice.idm.ws.model.User;
 import com.lentice.idm.ws.service.OrganizationService;
+import com.lentice.idm.ws.service.RoleService;
 import com.lentice.idm.ws.service.UserService;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,7 @@ public class UserController {
 
 	private UserService userService;
 	private OrganizationService orgService;
+	private RoleService roleService;
 
 	@Autowired(required = true)
 	@Qualifier(value = "userService")
@@ -56,6 +58,12 @@ public class UserController {
 	@Qualifier(value = "orgService")
 	public void setOrgService(OrganizationService orgService) {
 		this.orgService = orgService;
+	}
+
+	@Autowired(required = true)
+	@Qualifier(value = "roleService")
+	public void setRoleService(RoleService roleService) {
+		this.roleService = roleService;
 	}
 
 	@GetMapping(value = "/users")
@@ -122,7 +130,7 @@ public class UserController {
 		return new ResponseEntity<List<?>>(successList, headers(), HttpStatus.OK);
 	}
 	
-	@DeleteMapping
+	@DeleteMapping(value = "/users")
 	public ResponseEntity<List<?>> deleteUser(@Valid @RequestBody List<Map> ids) {
 		List<Map> successList = new ArrayList<Map>();
 		for (Map map : ids) {
@@ -144,8 +152,12 @@ public class UserController {
 		try {
 			Set<Role> roleSet = new HashSet<Role>();
 			for(Role role : roles) {
-				map.put("key", ""+role.getKey());
-				roleSet.add(role);
+				map.put("key-"+role.getKey(), ""+role.getKey());
+				Role T = roleService.getRoleById(role.getKey());
+				if(null != T) {
+					role = T;
+					roleSet.add(role);
+				}
 				successList.add(map);
 			}
 			User user = this.userService.getUserById(id);
